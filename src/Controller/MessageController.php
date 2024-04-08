@@ -5,8 +5,6 @@ namespace App\Controller;
 
 use App\Message\SendMessage;
 use App\Repository\MessageRepository;
-use Controller\MessageControllerTest;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,20 +13,26 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @see MessageControllerTest
- * TODO: review both methods and also the `openapi.yaml` specification
- *       Add Comments for your Code-Review, so that the developer can understand why changes are needed.
  */
 class MessageController extends AbstractController
 {
-    /**
-     * TODO: cover this method with tests, and refactor the code (including other files that need to be refactored)
-     */
     #[Route('/messages')]
-    public function list(Request $request, MessageRepository $messages): Response
+    public function list(Request $request, MessageRepository $messageRepository): Response
     {
-        $messages = $messages->by($request);
+        $status = $request->query->get('status');
+
+        if ($status !== null) {
+            $status = (string) $status;
+        }
+
+        /**
+         * send only parameter to search by to method, not full request
+         */
+        $rawMessages = $messageRepository->by($status);
+
+        $messages = [];
   
-        foreach ($messages as $key=>$message) {
+        foreach ($rawMessages as $key => $message) {
             $messages[$key] = [
                 'uuid' => $message->getUuid(),
                 'text' => $message->getText(),
@@ -50,7 +54,7 @@ class MessageController extends AbstractController
             return new Response('Text is required', 400);
         }
 
-        $bus->dispatch(new SendMessage($text));
+        $bus->dispatch(new SendMessage((string) $text));
         
         return new Response('Successfully sent', 204);
     }

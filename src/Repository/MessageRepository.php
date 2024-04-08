@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends ServiceEntityRepository<Message>
@@ -21,12 +20,17 @@ class MessageRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Message::class);
     }
-    
-    public function by(Request $request): array
+
+    /**
+     * accept only $status as parameter, not full request
+     * in this way, you can call this method from other places where you don't have status as parameter in request
+     *
+     * @return Message[]
+     */
+    public function by(?string $status): array
     {
-        $status = $request->query->get('status');
-        
         if ($status) {
+            /** @var Message[] $messages */
             $messages = $this->getEntityManager()
                 ->createQuery(
                     sprintf("SELECT m FROM App\Entity\Message m WHERE m.status = '%s'", $status)
