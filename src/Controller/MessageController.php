@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class MessageController extends AbstractController
 {
-    #[Route('/messages')]
+    #[Route('/messages', methods: ['GET'])]
     public function list(Request $request, MessageRepository $messageRepository): Response
     {
         $status = $request->query->get('status');
