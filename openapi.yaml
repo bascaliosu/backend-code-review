@@ -47,6 +47,29 @@ paths:
                     status: "sent"
                   - text: "Thanks, I'm fine. How about you?"
                     status: "sent"
+        '422':
+          description: Invalid status sent
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  messages:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        uuid:
+                          type: "string"
+                        text:
+                          type: "string"
+                        status:
+                          type: "string"
+                          enum:
+                            - "sent"
+                            - "read"
+        '405':
+          description: Method Not Allowed
   /messages/send:
     get:
       summary: Send a Message

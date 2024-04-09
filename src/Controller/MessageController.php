@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Enum\StatusEnum;
 use App\Message\SendMessage;
 use App\Repository\MessageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,8 +22,15 @@ class MessageController extends AbstractController
     {
         $status = $request->query->get('status');
 
-        if ($status !== null) {
-            $status = (string) $status;
+        try {
+            if ($status !== null) {
+                $statusEnum = StatusEnum::from((string) $status);
+                $status = $statusEnum->value;
+            }
+        } catch (\Throwable) {
+            return new Response(json_encode([
+                'messages' => [],
+            ], JSON_THROW_ON_ERROR), status: Response::HTTP_UNPROCESSABLE_ENTITY, headers: ['Content-Type' => 'application/json']);
         }
 
         /**

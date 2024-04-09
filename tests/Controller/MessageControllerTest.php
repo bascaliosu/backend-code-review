@@ -86,6 +86,27 @@ class MessageControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('Content-Type', 'application/json');
     }
+
+    function test_list_invalid_status(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/messages', [
+            'status' => 'something',
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertResponseHeaderSame('Content-Type', 'application/json');
+    }
+
+    function test_list_invalid_method_type(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/messages', [
+            'status' => 'sent',
+        ]);
+
+        $this->assertResponseStatusCodeSame(405);
+    }
     
     function test_that_it_sends_a_message(): void
     {
